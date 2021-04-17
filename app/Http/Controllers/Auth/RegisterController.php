@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\User;
 use App\Student;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -11,7 +12,6 @@ use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 
 class RegisterController extends Controller
@@ -46,92 +46,73 @@ class RegisterController extends Controller
         $this->middleware('guest');
     }
 
-    /**
-     * Get a validator for an incoming registration request.
-     *
-     * @param  array  $data
-     * @return \Illuminate\Contracts\Validation\Validator
-     
-    protected function validator(array $data)
-    {
-        return Validator::make($data, [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:6', 'confirmed'],
-        ]);
-    }
-    */
 
     /**
-     * Create a new user instance after a valid registration.
+     * Show the application registration form.
      *
-     * @param  array  $data
-     * @return \App\User
-     
-    protected function create(array $data)
-    {
-        return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-        ]);
-    }
-    */
-
-    /**
-     *Show the application registration form
-     *
-     *@return \Illuminate\Http\Response
-    */
+     * @return \Illuminate\Http\Response
+     */
     public function showRegistrationForm()
     {
         $student = Student::all();
+
         return view('auth.register', compact('student'));
     }
 
+
     /**
-     * Handle a registration request for the application
+     * Handle a registration request for the application.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param \Illuminate\Http\Rresponse
-    */
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+
+
     public function register(Request $request)
     {
-        $validator = Validator::make($request->all(),
-        [
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
-            'nama' => 'required|string|max:100',
-            'nis' => 'required|string|max:45',
-            'tempat_lahir' => 'required|string|max:45',
-            'tanggal_lahir' => 'required',
-            'nem' => 'required|string|max:45',
-            'no_ijazah' => 'required|string|max:45',
-            'nama_ortu' => 'required|string|max:100',
-            'pekerjaan_ortu' => 'required|string|max:100',
-            'telp' => 'required|string|max:15',
-            'alamat' => 'required',
-        ],
 
-        $message = 
-        [
-            'email.required.required' => 'E-Mail tidak boleh kosong!',
-            'password.required' => 'Password tidak boleh kosong!',
-            'nama.required' => 'Nama tidak boleh kosong!',
-            'nis.required' => 'NIS tidak boleh kosong',
-            'tempat_lahir.required' => 'Tempat lahir tidak boleh kosong!',
-            'tanggal_lahir.required' => 'Tanggal lahir tidak boleh kosong!',
-            'nem.required' => 'NEM tidak boleh kosong!',
-            'no_ijazah.required' => 'Nomor Ijazah tidak boleh kosong!',
-            'nama_ortu.required' => 'Nama Orangtua tidak boleh kosong!',
-            'pekerjaan_ortu.required' => 'Pekerjaan Orangtua tidak boleh kosong!',
-            'telp.required' => 'Telepon tidak boleh kosong!',
-            'alamat.required' => 'Alamat tidak boleh kosong!',
-        ]);
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|min:6|confirmed',
+                'nama' => 'required|string|max:255',
+                'nis' => 'required|string|max:45',
+                'tempat_lahir' => 'required|string|max:45',
+                'tanggal_lahir' => 'required',
+                'nem' => 'required|string|max:45',
+                'no_ijazah' => 'required|string|max:45',
+                'nama_ortu' => 'required|string|max:100',
+                'pekerjaan_ortu' => 'required|string|max:100',
+                'telp' => 'required|string|max:45',
+                'alamat' => 'required',
+                'url_foto' => 'mimes:pdf,jpeg,png,jpg|max:2048',
 
-        if ($validator->fails()) 
-        {
-            return back()->withError($validator)->withInput();
+            ],
+
+            $messages =
+                [
+                    'email.required' => 'E-Mail tidak boleh kosong !',
+                    'password.required' => 'Password tidak boleh kosong',
+                    'nama.required' => 'Nama tidak boleh kosong!',
+                    'nis.required' => 'Nama tidak boleh kosong!',
+                    'tempat_lahir.required' => 'Nama tidak boleh kosong!',
+                    'tanggal_lahir.required' => 'Nama tidak boleh kosong!',
+                    'nem.required' => 'Nama tidak boleh kosong!',
+                    'no_ijazah.required' => 'Nama tidak boleh kosong!',
+                    'nama_ortu.required' => 'Nama tidak boleh kosong!',
+                    'pekerjaan_ortu.required' => 'Nama tidak boleh kosong!',
+                    'telp.required' => 'Nama tidak boleh kosong!',
+                    'alamat.required' => 'Nama tidak boleh kosong!',
+                    'url_foto.image' => 'Format file tidak mendukung! Gunakan jpg, jpeg, png, gif atau pdf.',
+                    'url_foto.max' => 'Ukuran file terlalu besar, maksimal file 2Mb !',
+
+
+                ]
+        );
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
         }
 
         //Table Users
@@ -155,8 +136,18 @@ class RegisterController extends Controller
         $student->pekerjaan_ortu = Input::get('pekerjaan_ortu');
         $student->telp = Input::get('telp');
         $student->alamat = Input::get('alamat');
+        $student->jenis_sekolah = Input::get('jenis_sekolah');
+        if ($file = $request->hasFile('url_foto')) {
+            $namaFile = $user->id;
+            $file = $request->file('url_foto');
+            $fileName = $namaFile . '_' . $file->getClientOriginalName();
+            $destinationPath = public_path() . '/images/';
+            $file->move($destinationPath, $fileName);
+            $student->url_foto = $fileName;
+        }
         $student->save();
 
-        return redirect()->back()->with('success', 'Registrasi Anda telah berhasil! Silahkan login dengan menggunakan E-Mail & Password Anda.');
+
+        return redirect()->back()->with('success', 'Registrasi Anda telah berhasil!. Silakan login dengan menggunakan email dan password Anda.');
     }
 }

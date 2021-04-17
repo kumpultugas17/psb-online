@@ -18,3 +18,18 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+// ROUTES ADMIN
+Route::group(['middleware' => 'check-permission:admin'], function () {
+    Route::group(['prefix' => 'admin'], function () {
+        Route::get('/dashboard', 'AdminController@index')->name('admin.dashboard');
+    });
+});
+
+
+// ROUTES PENDAFTAR
+Route::group(['middleware' => 'check-permission:pendaftar'], function () {
+    Route::group(['prefix' => 'pendaftar'], function () {
+        Route::get('/dashboard', 'PendaftarController@index')->name('pendaftar.dashboard');
+    });
+});

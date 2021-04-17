@@ -26,6 +26,8 @@ class CreateStudentsTable extends Migration
             $table->string('telp', 15);
             $table->longText('alamat');
             $table->integer('user_id')->unsigned();
+            $table->text('url_foto')->nullable();
+            $table->enum('jenis_sekolah', ['SMP', 'MTs'])->nullable();
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
