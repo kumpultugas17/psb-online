@@ -23,8 +23,8 @@ class PendaftarController extends Controller
         $title = 'Dashboard Calon Siswa';
         $id =  Auth::user()->id;
         $user = DB::table('users')->where('id', $id)->first();
-        $biodata = DB::table('biodata')->where('user_id', $id)->first();
+        $student = DB::table('students')->where('user_id', $id)->first();
 
-        return view('pendaftar', compact('title', 'user', 'biodata'));
+        return view('pendaftar', compact('title', 'user', 'student'));
     }
 }
